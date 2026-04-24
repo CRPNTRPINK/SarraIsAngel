@@ -1,0 +1,10 @@
+# никогда не коммитить оригинал аудио — только зашифрованный song.enc
+assets/song.ogg
+assets/song.mp3
+assets/song.wav
+assets/song.m4a
+
+# служебное
+.DS_Store
+Thumbs.db
+uploads/

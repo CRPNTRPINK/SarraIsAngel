@@ -1,0 +1,691 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>для тебя ♡</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Caveat:wght@500;700&display=swap" rel="stylesheet">
+<style>
+  /* ───────────  TWEAKABLE DEFAULTS  ─────────── */
+  /* (host can rewrite this block)                */
+  /*  see <script id="defaults"> below            */
+
+  :root{
+    --pink-50 : #fff4f8;
+    --pink-100: #ffe6ef;
+    --pink-200: #ffd1e1;
+    --pink-300: #ffb6cf;
+    --pink-400: #ff8eb4;
+    --pink-500: #ff6aa0;
+    --rose    : #e94f86;
+    --cream   : #fff9f3;
+    --sky-1   : #fde8f1;
+    --sky-2   : #e8f0ff;
+    --sky-3   : #f3e8ff;
+    --ink     : #4a2740;
+    --ink-soft: #7a4f6c;
+    --shadow  : 0 14px 40px -10px rgba(233,79,134,.35);
+    --bow-red : #ff5a8a;
+  }
+
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    font-family:'Fredoka',system-ui,sans-serif;
+    color:var(--ink);
+    overflow:hidden;
+    background:
+      radial-gradient(ellipse at 20% 10%,  var(--sky-3) 0%, transparent 55%),
+      radial-gradient(ellipse at 80% 30%,  var(--sky-2) 0%, transparent 50%),
+      radial-gradient(ellipse at 50% 100%, var(--sky-1) 0%, transparent 60%),
+      linear-gradient(180deg, #fff7fb 0%, #ffeef6 60%, #ffe3ee 100%);
+  }
+
+  /* ─────────── shared decorative shapes ─────────── */
+  .bow{
+    position:absolute;width:48px;height:36px;pointer-events:none;
+    filter:drop-shadow(0 4px 6px rgba(255,90,138,.25));
+  }
+  .heart{
+    position:absolute;width:22px;height:22px;
+    background:var(--pink-400);
+    transform:rotate(-45deg);
+    border-radius:4px 4px 0 0;
+    filter:drop-shadow(0 4px 8px rgba(255,142,180,.4));
+    pointer-events:none;
+  }
+  .heart::before,.heart::after{
+    content:"";position:absolute;width:100%;height:100%;
+    background:var(--pink-400);border-radius:50%;
+  }
+  .heart::before{top:-50%;left:0}
+  .heart::after{top:0;left:50%}
+  .star{
+    position:absolute;width:14px;height:14px;pointer-events:none;
+    background:#fff;
+    clip-path:polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%);
+    filter:drop-shadow(0 0 8px #fff);
+  }
+
+  /* ───────────────────────────────────────────── */
+  /*                  SCREEN ROOT                  */
+  /* ───────────────────────────────────────────── */
+  .screen{
+    position:fixed;inset:0;display:flex;align-items:center;justify-content:center;
+    transition:opacity .8s ease, transform .8s ease;
+  }
+  .screen.hidden{opacity:0;pointer-events:none;transform:scale(1.04)}
+
+  /* ────────────  GATE (password)  ──────────── */
+  #gate{
+    background:
+      radial-gradient(circle at 50% 110%, #ffd5e5 0%, transparent 60%),
+      linear-gradient(180deg, #fff4f9 0%, #ffe1ee 100%);
+  }
+
+  .gate-card{
+    position:relative;
+    width:min(440px, 90vw);
+    background:#fff;
+    border-radius:34px;
+    padding:54px 38px 42px;
+    text-align:center;
+    box-shadow:
+      0 30px 60px -20px rgba(255,106,160,.45),
+      0 0 0 6px #fff,
+      0 0 0 8px var(--pink-200);
+  }
+
+  /* big bow on top of card */
+  .card-bow{
+    position:absolute;top:-46px;left:50%;transform:translateX(-50%);
+    width:120px;height:80px;
+    filter:drop-shadow(0 8px 14px rgba(255,90,138,.3));
+  }
+
+  .gate-card h1{
+    font-family:'Caveat',cursive;
+    font-weight:700;
+    font-size:42px;
+    color:var(--rose);
+    margin-bottom:6px;
+    line-height:1;
+  }
+  .gate-card .sub{
+    font-size:15px;color:var(--ink-soft);font-weight:400;margin-bottom:30px;
+  }
+
+  .pw-wrap{
+    position:relative;display:flex;align-items:center;
+    background:var(--pink-50);
+    border:2px dashed var(--pink-300);
+    border-radius:18px;
+    padding:6px 6px 6px 18px;
+    transition:border-color .2s, background .2s;
+  }
+  .pw-wrap:focus-within{border-color:var(--pink-500);background:#fff}
+  .pw-wrap.shake{animation:shake .45s}
+  @keyframes shake{
+    0%,100%{transform:translateX(0)}
+    20%{transform:translateX(-8px)}
+    40%{transform:translateX(8px)}
+    60%{transform:translateX(-6px)}
+    80%{transform:translateX(6px)}
+  }
+  .pw-wrap .ico{font-size:18px;color:var(--pink-400);margin-right:8px}
+  #pw{
+    flex:1;
+    border:0;outline:0;background:transparent;
+    font-family:'Fredoka',sans-serif;font-size:17px;font-weight:500;
+    color:var(--ink);padding:12px 6px;letter-spacing:.04em;
+  }
+  #pw::placeholder{color:#d39ab6;font-weight:400;letter-spacing:0}
+  #go{
+    border:0;cursor:pointer;
+    background:linear-gradient(180deg, var(--pink-400) 0%, var(--pink-500) 100%);
+    color:#fff;font-family:'Fredoka',sans-serif;font-weight:600;font-size:15px;
+    padding:12px 22px;border-radius:14px;
+    box-shadow:0 6px 14px -2px rgba(255,106,160,.55), inset 0 -2px 0 rgba(0,0,0,.08);
+    transition:transform .15s;
+  }
+  #go:hover{transform:translateY(-1px)}
+  #go:active{transform:translateY(1px)}
+
+  .hint{
+    margin-top:18px;font-size:12.5px;color:#b97898;
+    font-weight:400;
+  }
+  .hint .err{color:var(--rose);font-weight:500}
+
+  /* tiny hearts floating in the gate bg */
+  .float-deco{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+  .float-deco .h, .float-deco .s{
+    position:absolute;
+    animation:floatUp linear infinite;
+    opacity:.7;
+  }
+  @keyframes floatUp{
+    0%  {transform:translateY(110vh) rotate(-45deg) scale(.6); opacity:0}
+    10% {opacity:.7}
+    90% {opacity:.5}
+    100%{transform:translateY(-15vh) rotate(-45deg) scale(1.1); opacity:0}
+  }
+
+  /* ──────────────  MAIN STAGE  ────────────── */
+  #stage{
+    background:
+      radial-gradient(ellipse at 50% 110%, #ffd0e0 0%, transparent 55%),
+      linear-gradient(180deg, #e9f1ff 0%, #f5e6ff 35%, #ffe2ee 75%, #ffd1e2 100%);
+    flex-direction:column;
+  }
+
+  /* sun-like soft glow */
+  .sun{
+    position:absolute;top:8%;right:10%;
+    width:140px;height:140px;border-radius:50%;
+    background:radial-gradient(circle, #fff5b5 0%, #ffd9a8 45%, transparent 70%);
+    filter:blur(2px);opacity:.65;
+    animation:sunPulse 6s ease-in-out infinite;
+  }
+  @keyframes sunPulse{
+    0%,100%{transform:scale(1);opacity:.6}
+    50%    {transform:scale(1.08);opacity:.75}
+  }
+
+  /* clouds layer */
+  .clouds{position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:2}
+  .cloud{
+    position:absolute;
+    background-image:url('assets/cloud.png');
+    background-size:contain;background-repeat:no-repeat;
+    filter:drop-shadow(0 14px 22px rgba(180,140,200,.18));
+    will-change:transform;
+  }
+
+  /* girl, gently swaying */
+  .girl-wrap{
+    position:absolute;left:50%;bottom:28vh;
+    transform:translateX(-50%);
+    width:min(460px, 72vw);
+    pointer-events:none;
+    z-index:3;
+  }
+  .girl{
+    width:100%;display:block;
+    transform-origin:50% 95%;
+    animation:sway 5.5s ease-in-out infinite;
+    filter:drop-shadow(0 18px 26px rgba(190,90,140,.28));
+  }
+  @keyframes sway{
+    0%,100%{transform:rotate(-1.6deg) translateY(0)}
+    50%    {transform:rotate(1.6deg)  translateY(-10px)}
+  }
+
+  /* halo of hearts/stars around girl */
+  .girl-halo{
+    position:absolute;left:50%;bottom:42%;
+    width:520px;height:520px;
+    transform:translateX(-50%);
+    pointer-events:none;
+    z-index:2;
+  }
+  .girl-halo .h, .girl-halo .s{
+    position:absolute;
+    animation:haloFloat 4.5s ease-in-out infinite;
+  }
+  @keyframes haloFloat{
+    0%,100%{transform:translateY(0) rotate(-45deg);opacity:.85}
+    50%    {transform:translateY(-14px) rotate(-45deg);opacity:1}
+  }
+
+  /* title ribbon */
+  .ribbon{
+    position:absolute;top:5%;left:5%;
+    text-align:left;z-index:0;
+    pointer-events:none;
+    transform:rotate(-4deg);
+  }
+  .ribbon .name{
+    font-family:'Caveat',cursive;font-weight:700;
+    font-size:clamp(44px, 6.5vw, 84px);
+    color:var(--rose);
+    line-height:.9;
+    text-shadow:
+      2px 2px 0 #fff, -2px -2px 0 #fff, 2px -2px 0 #fff, -2px 2px 0 #fff,
+      0 6px 18px rgba(233,79,134,.35);
+  }
+  .ribbon .sub{
+    margin-top:6px;
+    font-family:'Fredoka',sans-serif;
+    font-size:clamp(13px,1.2vw,16px);
+    color:var(--ink-soft);
+    letter-spacing:.18em;text-transform:uppercase;
+    font-weight:500;
+  }
+  @media (max-width: 600px){
+    .ribbon{top:3%;left:4%}
+  }
+
+  /* play button */
+  .play-dock{
+    position:absolute;left:50%;bottom:34px;transform:translateX(-50%);
+    z-index:5;display:flex;flex-direction:column;align-items:center;gap:10px;
+  }
+  .play{
+    position:relative;
+    width:108px;height:108px;border-radius:50%;
+    border:0;cursor:pointer;
+    background:
+      radial-gradient(circle at 35% 30%, #fff 0%, #ffe2ec 40%, #ff9dbe 100%);
+    box-shadow:
+      0 18px 30px -8px rgba(233,79,134,.55),
+      inset 0 -6px 12px rgba(233,79,134,.25),
+      inset 0 4px 8px rgba(255,255,255,.9),
+      0 0 0 6px #fff,
+      0 0 0 8px var(--pink-300);
+    display:flex;align-items:center;justify-content:center;
+    transition:transform .15s;
+  }
+  .play:hover{transform:scale(1.04)}
+  .play:active{transform:scale(.97)}
+  .play .tri{
+    width:0;height:0;
+    border-left:28px solid #fff;
+    border-top:18px solid transparent;
+    border-bottom:18px solid transparent;
+    margin-left:8px;
+    filter:drop-shadow(0 2px 4px rgba(233,79,134,.4));
+  }
+  .play .pause{
+    display:none;width:30px;height:34px;justify-content:space-between;
+  }
+  .play .pause span{
+    width:9px;height:100%;background:#fff;border-radius:3px;
+    box-shadow:0 2px 4px rgba(233,79,134,.3);
+  }
+  .play.playing .tri{display:none}
+  .play.playing .pause{display:flex}
+
+  /* tiny bows on the play button (ears) */
+  .play-ears{
+    position:absolute;inset:-22px;pointer-events:none;
+  }
+  .play-ears .e{
+    position:absolute;width:46px;height:34px;
+  }
+  .play-ears .e.left{ top:-2px; left:-4px; transform:rotate(-25deg) }
+  .play-ears .e.right{top:-2px; right:-4px; transform:rotate(25deg) }
+
+  .play-label{
+    font-family:'Caveat',cursive;font-weight:700;font-size:26px;
+    color:var(--rose);
+    text-shadow:1px 1px 0 #fff, 0 4px 10px rgba(233,79,134,.3);
+  }
+
+  /* equalizer bars when playing */
+  .eq{
+    display:none;gap:4px;align-items:end;height:28px;margin-top:2px;
+  }
+  .play.playing ~ .eq{display:flex}
+  .eq span{
+    width:5px;background:linear-gradient(180deg,var(--pink-400),var(--rose));
+    border-radius:3px;
+    animation:eq 1s ease-in-out infinite;
+  }
+  .eq span:nth-child(1){animation-delay:.0s}
+  .eq span:nth-child(2){animation-delay:.15s}
+  .eq span:nth-child(3){animation-delay:.3s}
+  .eq span:nth-child(4){animation-delay:.45s}
+  .eq span:nth-child(5){animation-delay:.6s}
+  @keyframes eq{
+    0%,100%{height:6px}
+    50%    {height:28px}
+  }
+
+  /* tiny lily decorations bottom corners */
+  .lily{
+    position:absolute;bottom:-10px;width:160px;pointer-events:none;
+    z-index:1;opacity:.95;
+  }
+  .lily.left{ left:-30px; transform:rotate(-12deg) }
+  .lily.right{right:-30px; transform:rotate(12deg) scaleX(-1) }
+
+  /* helper: small note in corner */
+  .made-with{
+    position:absolute;top:14px;left:18px;z-index:6;
+    font-family:'Caveat',cursive;font-size:18px;color:#c46690;
+    opacity:.85;pointer-events:none;
+  }
+
+  /* responsive */
+  @media (max-width: 600px){
+    .girl-wrap{width:80vw;bottom:32vh}
+    .girl-halo{width:88vw;height:88vw;bottom:42%}
+    .play{width:92px;height:92px}
+    .play .tri{border-left-width:24px;border-top-width:15px;border-bottom-width:15px}
+    .lily{width:120px}
+  }
+</style>
+</head>
+<body>
+
+<!-- ─────────────  GATE  ───────────── -->
+<section id="gate" class="screen">
+  <div class="float-deco" id="gateDeco"></div>
+
+  <div class="gate-card">
+    <!-- bow svg (original, generic) -->
+    <svg class="card-bow" viewBox="0 0 120 80" aria-hidden="true">
+      <defs>
+        <linearGradient id="bowG" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0%"  stop-color="#ff8db4"/>
+          <stop offset="100%" stop-color="#ff5a8a"/>
+        </linearGradient>
+      </defs>
+      <!-- left loop -->
+      <path d="M60,40 C30,10 6,18 8,42 C10,66 36,68 60,46 Z" fill="url(#bowG)"/>
+      <!-- right loop -->
+      <path d="M60,40 C90,10 114,18 112,42 C110,66 84,68 60,46 Z" fill="url(#bowG)"/>
+      <!-- knot -->
+      <ellipse cx="60" cy="42" rx="10" ry="12" fill="#e94f86"/>
+      <ellipse cx="58" cy="38" rx="3" ry="4" fill="#fff" opacity=".5"/>
+      <!-- tails -->
+      <path d="M55,52 C50,68 46,74 40,76 L52,64 Z" fill="#ff5a8a"/>
+      <path d="M65,52 C70,68 74,74 80,76 L68,64 Z" fill="#ff5a8a"/>
+    </svg>
+
+    <h1>привет, солнышко ☁︎</h1>
+    <p class="sub">введи слово с открытки</p>
+
+    <form id="pwForm" autocomplete="off">
+      <div class="pw-wrap" id="pwWrap">
+        <span class="ico">♡</span>
+        <input id="pw" type="password" placeholder="секретное слово" autocomplete="off" autocapitalize="none" autocorrect="off" spellcheck="false"/>
+        <button id="go" type="submit">открыть</button>
+      </div>
+    </form>
+
+    <p class="hint" id="hint">подсказка: то, как тебя зову только я ♡</p>
+  </div>
+</section>
+
+
+<!-- ─────────────  STAGE  ───────────── -->
+<section id="stage" class="screen hidden" style="gap: 0px">
+  <div class="sun"></div>
+
+  <!-- clouds -->
+  <div class="clouds" id="clouds"></div>
+
+  <!-- title -->
+  <div class="ribbon">
+    <div class="name" id="titleName">Sarra</div>
+    <div class="sub">лучший ангел ♡</div>
+  </div>
+
+  <!-- halo of hearts behind girl -->
+  <div class="girl-halo" id="halo"></div>
+
+  <!-- the girl -->
+  <div class="girl-wrap">
+    <img class="girl" src="assets/girl.png" alt="" />
+  </div>
+
+  <!-- lilies in corners (placeholder svg) -->
+  <svg class="lily left" viewBox="0 0 200 200" aria-hidden="true">
+    <g transform="translate(100,120)">
+      <ellipse cx="0" cy="40" rx="60" ry="10" fill="#cfe8c4" opacity=".55"/>
+      <!-- stem -->
+      <path d="M0,40 C-2,0 4,-30 0,-60" stroke="#a3c98f" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <!-- petals -->
+      <g transform="translate(0,-65)">
+        <ellipse cx="0"   cy="-10" rx="10" ry="28" fill="#fff" stroke="#f3dfe7" stroke-width="1"/>
+        <ellipse cx="-18" cy="0"   rx="10" ry="26" fill="#fff" stroke="#f3dfe7" stroke-width="1" transform="rotate(-35)"/>
+        <ellipse cx="18"  cy="0"   rx="10" ry="26" fill="#fff" stroke="#f3dfe7" stroke-width="1" transform="rotate(35)"/>
+        <ellipse cx="-10" cy="6"   rx="9"  ry="22" fill="#fffafd" stroke="#f3dfe7" stroke-width="1" transform="rotate(-15)"/>
+        <ellipse cx="10"  cy="6"   rx="9"  ry="22" fill="#fffafd" stroke="#f3dfe7" stroke-width="1" transform="rotate(15)"/>
+        <!-- center -->
+        <circle cx="0" cy="-2" r="4" fill="#ffd66b"/>
+        <line x1="0" y1="-2" x2="0" y2="-18" stroke="#ffb84d" stroke-width="2" stroke-linecap="round"/>
+        <line x1="0" y1="-2" x2="-6" y2="-15" stroke="#ffb84d" stroke-width="2" stroke-linecap="round"/>
+        <line x1="0" y1="-2" x2="6"  y2="-15" stroke="#ffb84d" stroke-width="2" stroke-linecap="round"/>
+      </g>
+    </g>
+  </svg>
+  <svg class="lily right" viewBox="0 0 200 200" aria-hidden="true">
+    <g transform="translate(100,120)">
+      <ellipse cx="0" cy="40" rx="60" ry="10" fill="#cfe8c4" opacity=".55"/>
+      <path d="M0,40 C-2,0 4,-30 0,-60" stroke="#a3c98f" stroke-width="3" fill="none" stroke-linecap="round"/>
+      <g transform="translate(0,-65)">
+        <ellipse cx="0"   cy="-10" rx="10" ry="28" fill="#fff" stroke="#f3dfe7" stroke-width="1"/>
+        <ellipse cx="-18" cy="0"   rx="10" ry="26" fill="#fff" stroke="#f3dfe7" stroke-width="1" transform="rotate(-35)"/>
+        <ellipse cx="18"  cy="0"   rx="10" ry="26" fill="#fff" stroke="#f3dfe7" stroke-width="1" transform="rotate(35)"/>
+        <ellipse cx="-10" cy="6"   rx="9"  ry="22" fill="#fffafd" stroke="#f3dfe7" stroke-width="1" transform="rotate(-15)"/>
+        <ellipse cx="10"  cy="6"   rx="9"  ry="22" fill="#fffafd" stroke="#f3dfe7" stroke-width="1" transform="rotate(15)"/>
+        <circle cx="0" cy="-2" r="4" fill="#ffd66b"/>
+        <line x1="0" y1="-2" x2="0" y2="-18" stroke="#ffb84d" stroke-width="2" stroke-linecap="round"/>
+        <line x1="0" y1="-2" x2="-6" y2="-15" stroke="#ffb84d" stroke-width="2" stroke-linecap="round"/>
+        <line x1="0" y1="-2" x2="6"  y2="-15" stroke="#ffb84d" stroke-width="2" stroke-linecap="round"/>
+      </g>
+    </g>
+  </svg>
+
+  <!-- play dock -->
+  <div class="play-dock">
+    <button id="play" class="play" aria-label="Включить">
+      <span class="tri"></span>
+      <span class="pause"><span></span><span></span></span>
+      <div class="play-ears">
+        <svg class="e left"  viewBox="0 0 46 34"><path d="M23,17 C8,2 0,8 2,18 C4,28 16,30 23,20 Z" fill="#ff5a8a"/><circle cx="10" cy="14" r="3" fill="#ffd1e1"/></svg>
+        <svg class="e right" viewBox="0 0 46 34"><path d="M23,17 C38,2 46,8 44,18 C42,28 30,30 23,20 Z" fill="#ff5a8a"/><circle cx="36" cy="14" r="3" fill="#ffd1e1"/></svg>
+      </div>
+    </button>
+    <div class="play-label" id="playLabel">нажми меня ♡</div>
+    <div class="eq"><span></span><span></span><span></span><span></span><span></span></div>
+  </div>
+
+  <audio id="audio" preload="none"></audio>
+</section>
+
+<!-- defaults block (kept JSON-safe for future tweakability) -->
+<script id="defaults" type="application/json">
+{ "name": "Sarra", "encryptedAudio": "assets/song.enc" }
+</script>
+
+<script>
+(() => {
+  const cfg = JSON.parse(document.getElementById('defaults').textContent);
+
+  /* ───────── decorate gate background ───────── */
+  const gateDeco = document.getElementById('gateDeco');
+  for (let i=0;i<14;i++){
+    const isHeart = Math.random() < .65;
+    const el = document.createElement('div');
+    el.className = isHeart ? 'h heart' : 's star';
+    el.style.left = (Math.random()*100) + 'vw';
+    const dur = 9 + Math.random()*10;
+    el.style.animationDuration = dur + 's';
+    el.style.animationDelay    = (-Math.random()*dur) + 's';
+    const scale = .5 + Math.random()*1.2;
+    el.style.transform = `scale(${scale})`;
+    if (isHeart){
+      const hue = 330 + Math.random()*20;
+      el.style.background = `hsl(${hue} 90% ${72+Math.random()*10}%)`;
+    }
+    gateDeco.appendChild(el);
+  }
+  // give heart pseudos right color via CSS var fallback (we used background directly so it's fine)
+
+  /* ───────── halo around girl ───────── */
+  const halo = document.getElementById('halo');
+  const haloCount = 18;
+  for (let i=0;i<haloCount;i++){
+    const ang = (i/haloCount) * Math.PI * 2;
+    const r = 45 + (i%3)*4; // % of halo box
+    const x = 50 + Math.cos(ang)*r;
+    const y = 50 + Math.sin(ang)*r;
+    const isHeart = i%2===0;
+    const el = document.createElement('div');
+    el.className = isHeart ? 'h heart' : 's star';
+    el.style.left = x + '%';
+    el.style.top  = y + '%';
+    el.style.animationDelay = (-Math.random()*4.5) + 's';
+    if (isHeart){
+      const hue = 330 + Math.random()*25;
+      el.style.background = `hsl(${hue} 90% ${72+Math.random()*8}%)`;
+      el.style.width = el.style.height = (16 + Math.random()*10) + 'px';
+    } else {
+      el.style.width = el.style.height = (10 + Math.random()*8) + 'px';
+    }
+    halo.appendChild(el);
+  }
+
+  /* ───────── clouds ───────── */
+  const cloudsLayer = document.getElementById('clouds');
+  // 7 clouds, varied size, speed, vertical band
+  const clouds = [
+    {top:'8%',  size:170, dur:55, delay:-5,  z:1, op:.95},
+    {top:'18%', size:120, dur:70, delay:-30, z:1, op:.85},
+    {top:'30%', size:210, dur:60, delay:-15, z:1, op:.9},
+    {top:'45%', size:140, dur:80, delay:-45, z:1, op:.8},
+    {top:'12%', size:90,  dur:90, delay:-20, z:1, op:.7},
+    {top:'55%', size:180, dur:65, delay:-50, z:1, op:.85},
+    {top:'25%', size:100, dur:75, delay:-60, z:1, op:.75},
+  ];
+  clouds.forEach((c, i) => {
+    const el = document.createElement('div');
+    el.className = 'cloud';
+    el.style.top = c.top;
+    el.style.width = c.size + 'px';
+    el.style.height = (c.size*0.72) + 'px';
+    el.style.opacity = c.op;
+    el.style.zIndex = c.z;
+    // animate via JS keyframes so we can chain unique drifts
+    const anim = el.animate(
+      [
+        { transform: `translateX(-30vw)` },
+        { transform: `translateX(110vw)` }
+      ],
+      { duration: c.dur*1000, iterations: Infinity, delay: c.delay*1000, easing: 'linear' }
+    );
+    cloudsLayer.appendChild(el);
+  });
+
+  /* ───────── gate logic ───────── */
+  const gate = document.getElementById('gate');
+  const stage= document.getElementById('stage');
+  const form = document.getElementById('pwForm');
+  const pw   = document.getElementById('pw');
+  const hint = document.getElementById('hint');
+  const wrap = document.getElementById('pwWrap');
+
+  // set name in stage
+  document.getElementById('titleName').textContent = cfg.name;
+
+  // will hold the decrypted blob-URL once the password is correct
+  let audioObjectUrl = null;
+
+  function open(){
+    gate.classList.add('hidden');
+    stage.classList.remove('hidden');
+  }
+
+  /* ───────── crypto helpers ───────── */
+  // AES-GCM with PBKDF2(SHA-256, 200k iterations)
+  // file layout:  [ 16 bytes salt ][ 12 bytes iv ][ ciphertext + gcm-tag ]
+  async function deriveKey(password, salt){
+    const baseKey = await crypto.subtle.importKey(
+      'raw', new TextEncoder().encode(password),
+      'PBKDF2', false, ['deriveKey']
+    );
+    return crypto.subtle.deriveKey(
+      { name:'PBKDF2', salt, iterations:200000, hash:'SHA-256' },
+      baseKey,
+      { name:'AES-GCM', length:256 },
+      false, ['decrypt']
+    );
+  }
+  async function decryptAudio(password){
+    const res = await fetch(cfg.encryptedAudio, { cache: 'no-store' });
+    if (!res.ok) throw new Error('fetch failed');
+    const buf = new Uint8Array(await res.arrayBuffer());
+    const salt = buf.slice(0, 16);
+    const iv   = buf.slice(16, 28);
+    const data = buf.slice(28);
+    const key  = await deriveKey(password, salt);
+    const plain = await crypto.subtle.decrypt({ name:'AES-GCM', iv }, key, data);
+    // most likely audio/ogg — blob type doesn't matter for <audio>
+    return URL.createObjectURL(new Blob([plain], { type:'audio/ogg' }));
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const v = pw.value;
+    if (!v) return;
+    hint.innerHTML = '<span style="color:#c46690">открываю…</span>';
+    try{
+      audioObjectUrl = await decryptAudio(v);
+      document.getElementById('audio').src = audioObjectUrl;
+      hint.innerHTML = '<span style="color:#2aa46a">верно ♡</span>';
+      setTimeout(open, 500);
+    } catch(err){
+      wrap.classList.remove('shake');
+      void wrap.offsetWidth;
+      wrap.classList.add('shake');
+      hint.innerHTML = '<span class="err">не то слово, попробуй ещё ♡</span>';
+    }
+  });
+
+  pw.focus();
+
+  /* ───────── audio + play button ───────── */
+  const audio = document.getElementById('audio');
+  const playBtn = document.getElementById('play');
+  const playLabel = document.getElementById('playLabel');
+  const eq = document.querySelector('.eq');
+
+  playBtn.addEventListener('click', () => {
+    if (audio.paused){
+      audio.play().catch(()=>{});
+    } else {
+      audio.pause();
+    }
+  });
+  audio.addEventListener('play', () => {
+    playBtn.classList.add('playing');
+    playLabel.textContent = 'играет для тебя ♡';
+    eq.style.display = 'flex';
+  });
+  audio.addEventListener('pause', () => {
+    playBtn.classList.remove('playing');
+    playLabel.textContent = 'нажми меня ♡';
+    eq.style.display = 'none';
+  });
+  audio.addEventListener('ended', () => {
+    playBtn.classList.remove('playing');
+    playLabel.textContent = 'ещё раз? ♡';
+    eq.style.display = 'none';
+  });
+
+  // gentle parallax on mouse for the girl, makes "слегка двигаться" extra alive
+  const girl = document.querySelector('.girl');
+  let mx=0, my=0, cx=0, cy=0;
+  document.addEventListener('mousemove', (e) => {
+    mx = (e.clientX / window.innerWidth  - .5) * 12;
+    my = (e.clientY / window.innerHeight - .5) * 8;
+  });
+  function loop(){
+    cx += (mx - cx) * 0.05;
+    cy += (my - cy) * 0.05;
+    girl.style.setProperty('--px', cx + 'px');
+    girl.style.setProperty('--py', cy + 'px');
+    girl.style.translate = `${cx}px ${cy}px`;
+    requestAnimationFrame(loop);
+  }
+  loop();
+})();
+</script>
+</body>
+</html>

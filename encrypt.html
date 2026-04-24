@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Шифровальщик ♡</title>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Caveat:wght@700&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    min-height:100vh;display:flex;align-items:center;justify-content:center;
+    font-family:'Fredoka',system-ui,sans-serif;color:#4a2740;padding:24px;
+    background:linear-gradient(180deg,#fff4f9 0%,#ffe1ee 100%);
+  }
+  .card{
+    width:min(520px,100%);background:#fff;border-radius:28px;
+    padding:36px 32px;box-shadow:0 30px 60px -20px rgba(255,106,160,.35),
+      0 0 0 6px #fff, 0 0 0 8px #ffd1e1;
+  }
+  h1{font-family:'Caveat',cursive;font-size:36px;color:#e94f86;margin-bottom:4px;line-height:1}
+  p.sub{color:#7a4f6c;font-size:14px;margin-bottom:22px}
+  label{display:block;font-size:13px;color:#7a4f6c;margin:14px 0 6px;font-weight:500}
+  input[type=file],input[type=text]{
+    width:100%;padding:12px 14px;border:2px dashed #ffd1e1;border-radius:14px;
+    background:#fff4f8;font:inherit;color:#4a2740;outline:none;
+  }
+  input[type=text]{border-style:solid}
+  input:focus{border-color:#ff6aa0;background:#fff}
+  button{
+    margin-top:20px;width:100%;border:0;cursor:pointer;padding:14px;border-radius:14px;
+    background:linear-gradient(180deg,#ff8eb4,#ff6aa0);color:#fff;font:600 16px 'Fredoka',sans-serif;
+    box-shadow:0 8px 16px -4px rgba(255,106,160,.55);
+  }
+  button:disabled{opacity:.5;cursor:wait}
+  .status{margin-top:14px;font-size:13px;color:#7a4f6c;min-height:20px}
+  .ok{color:#2aa46a}
+  .err{color:#e94f86}
+  ol{margin:12px 0 0 18px;font-size:13px;color:#7a4f6c;line-height:1.6}
+  code{background:#fff4f8;padding:1px 6px;border-radius:6px;font-size:12px}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>Шифровальщик ♡</h1>
+  <p class="sub">один раз зашифруйте свою запись — и коммитьте только результат.</p>
+
+  <form id="f">
+    <label>файл (например, song.ogg)</label>
+    <input id="file" type="file" accept="audio/*" required/>
+
+    <label>пароль (тот же, что напишете на открытке)</label>
+    <input id="pw" type="text" value="" required/>
+
+    <button id="go" type="submit">зашифровать и скачать song.enc</button>
+  </form>
+
+  <div class="status" id="status"></div>
+
+  <ol>
+    <li>Загрузите сюда <code>song.ogg</code>.</li>
+    <li>Пароль должен совпадать с тем, что вы напишете на открытке.</li>
+    <li>Скачается <code>song.enc</code> — положите его в <code>assets/song.enc</code> в вашем репозитории.</li>
+    <li>Оригинальный <code>song.ogg</code> <b>не</b> коммитьте (он уже в <code>.gitignore</code>).</li>
+  </ol>
+</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const status = $('status');
+
+async function deriveKey(password, salt){
+  const baseKey = await crypto.subtle.importKey(
+    'raw', new TextEncoder().encode(password),
+    'PBKDF2', false, ['deriveKey']
+  );
+  return crypto.subtle.deriveKey(
+    { name:'PBKDF2', salt, iterations:200000, hash:'SHA-256' },
+    baseKey,
+    { name:'AES-GCM', length:256 },
+    false, ['encrypt']
+  );
+}
+
+$('f').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const file = $('file').files[0];
+  const password = $('pw').value;
+  if (!file || !password) return;
+
+  $('go').disabled = true;
+  status.className = 'status';
+  status.textContent = 'шифрую…';
+
+  try{
+    const salt = crypto.getRandomValues(new Uint8Array(16));
+    const iv   = crypto.getRandomValues(new Uint8Array(12));
+    const key  = await deriveKey(password, salt);
+    const data = new Uint8Array(await file.arrayBuffer());
+    const ct   = new Uint8Array(await crypto.subtle.encrypt(
+      { name:'AES-GCM', iv }, key, data
+    ));
+    // layout: salt(16) || iv(12) || ciphertext+tag
+    const out = new Uint8Array(salt.length + iv.length + ct.length);
+    out.set(salt, 0);
+    out.set(iv,   salt.length);
+    out.set(ct,   salt.length + iv.length);
+
+    const blob = new Blob([out], { type:'application/octet-stream' });
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'song.enc';
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+
+    status.className = 'status ok';
+    status.textContent = 'готово ♡ скачался song.enc — положите его в assets/';
+  } catch(err){
+    status.className = 'status err';
+    status.textContent = 'ошибка: ' + err.message;
+  } finally {
+    $('go').disabled = false;
+  }
+});
+</script>
+</body>
+</html>
